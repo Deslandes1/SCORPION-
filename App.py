@@ -1,5 +1,4 @@
 import streamlit as st
-import openai
 import base64
 import io
 import time
@@ -74,13 +73,6 @@ st.markdown("""
         background-color: #ffffff;
         border-right: 1px solid #e0e0e0;
     }
-    .api-instruction {
-        background: #fef7e0;
-        border-left: 4px solid #d62c1e;
-        padding: 10px;
-        border-radius: 5px;
-        margin: 10px 0;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -131,35 +123,17 @@ def analyze_image(image, prompt):
         )
         return response.choices[0].message.content
     except Exception as e:
-        if "401" in str(e) or "invalid_api_key" in str(e):
-            return "⚠️ **API Key Error** – Your OpenAI API key is missing or incorrect.\n\n" + get_api_instructions()
-        return f"⚠️ Image analysis error: {str(e)}"
+        return "⚠️ The AI service is temporarily unavailable. Please try again later."
 
 def transcribe_video(video_file):
-    return f"[Video analysis not yet implemented] {video_file.name} – You can use a service like AssemblyAI for full transcription."
-
-def get_api_instructions():
-    return (
-        "### How to set up your OpenAI API key\n\n"
-        "1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys) and create an API key (starts with `sk-`).\n"
-        "2. In your Streamlit app, click the **\"Manage app\"** button (gear icon) in the top right.\n"
-        "3. Go to **Settings → Secrets**.\n"
-        "4. Add the following two lines:\n"
-        "   ```\n"
-        "   password = \"20082010\"\n"
-        "   openai_api_key = \"sk-...\"\n"
-        "   ```\n"
-        "   (Replace `sk-...` with your actual key.)\n"
-        "5. Click **Save** and then **Rerun**.\n\n"
-        "The app will now work with your OpenAI account."
-    )
+    return f"[Video analysis not yet implemented] {video_file.name} – This feature will be available soon."
 
 def generate_code(prompt, media_summary=None):
     """Generate code or answer using OpenAI GPT-4."""
     try:
         client = OpenAI(api_key=st.secrets["openai_api_key"])
     except KeyError:
-        return "⚠️ **Configuration Error** – The `openai_api_key` secret is missing.\n\n" + get_api_instructions()
+        return "⚠️ Service configuration error. Please contact support."
 
     system_msg = """You are SCORPION ♏️, an AI that builds applications and analyzes data.
     Generate code, answer questions, and write reports.
@@ -182,12 +156,7 @@ def generate_code(prompt, media_summary=None):
         )
         return response.choices[0].message.content
     except Exception as e:
-        if "401" in str(e) or "invalid_api_key" in str(e):
-            return "⚠️ **API Key Error** – Your OpenAI API key is missing or incorrect.\n\n" + get_api_instructions()
-        elif "429" in str(e):
-            return "⚠️ **Rate Limit Exceeded** – You have used up your OpenAI quota or are making too many requests. Please check your account."
-        else:
-            return f"⚠️ Error: {str(e)}"
+        return "⚠️ The AI service is temporarily unavailable. Please try again later."
 
 # ----------------------------------------------------------------------
 # Sidebar – always visible with company info, price, license, description
@@ -210,13 +179,6 @@ with st.sidebar:
     - Answer technical questions and debug code
     - Provide detailed explanations and tutorials
     """)
-    
-    st.divider()
-    
-    # API Setup Instructions (visible to everyone)
-    st.markdown("## 🔧 Setup Instructions")
-    with st.expander("How to add your OpenAI API key"):
-        st.markdown(get_api_instructions())
     
     st.divider()
     
