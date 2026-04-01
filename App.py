@@ -6,11 +6,6 @@ from PIL import Image
 from openai import OpenAI
 
 # ----------------------------------------------------------------------
-# DEBUG MODE – set to True to see detailed errors (for owner only)
-# ----------------------------------------------------------------------
-DEBUG = True   # Change to False after debugging
-
-# ----------------------------------------------------------------------
 # Page configuration
 # ----------------------------------------------------------------------
 st.set_page_config(
@@ -109,39 +104,17 @@ def encode_image(image):
     return base64.b64encode(buffered.getvalue()).decode('utf-8')
 
 def analyze_image(image, prompt):
-    """Analyze image using OpenAI Vision."""
-    base64_img = encode_image(image)
-    try:
-        client = OpenAI(api_key=st.secrets["openai_api_key"])
-        response = client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {"type": "image_url", "image_url": f"data:image/jpeg;base64,{base64_img}"}
-                    ]
-                }
-            ],
-            max_tokens=1000
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        if DEBUG:
-            return f"⚠️ **Debug error**: {str(e)}"
-        return "⚠️ The AI service is temporarily unavailable. Please try again later."
+    """Image analysis is disabled because GPT-4 Vision is not available with the current API key."""
+    return "⚠️ Image analysis is currently unavailable with your OpenAI plan. Please use text-based requests."
 
 def transcribe_video(video_file):
     return f"[Video analysis not yet implemented] {video_file.name} – This feature will be available soon."
 
 def generate_code(prompt, media_summary=None):
-    """Generate code or answer using OpenAI GPT-4."""
+    """Generate code or answer using OpenAI GPT-3.5."""
     try:
         client = OpenAI(api_key=st.secrets["openai_api_key"])
     except KeyError:
-        if DEBUG:
-            return "⚠️ **Debug error**: OpenAI API key missing from secrets."
         return "⚠️ Service configuration error. Please contact support."
 
     system_msg = """You are SCORPION ♏️, an AI that builds applications and analyzes data.
@@ -155,7 +128,7 @@ def generate_code(prompt, media_summary=None):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",  # Use GPT-3.5 which is widely available
             messages=[
                 {"role": "system", "content": system_msg},
                 {"role": "user", "content": user_msg}
@@ -165,9 +138,7 @@ def generate_code(prompt, media_summary=None):
         )
         return response.choices[0].message.content
     except Exception as e:
-        if DEBUG:
-            return f"⚠️ **Debug error**: {str(e)}"
-        return "⚠️ The AI service is temporarily unavailable. Please try again later."
+        return f"⚠️ Error: {str(e)}"
 
 # ----------------------------------------------------------------------
 # Sidebar – always visible with company info, price, license, description
@@ -185,10 +156,10 @@ with st.sidebar:
     st.markdown("## 🧠 What SCORPION Can Do")
     st.markdown("""
     - Build complete apps in any programming language (Python, JavaScript, HTML/CSS, etc.)
-    - Analyze images and videos (vision & transcription)
     - Generate reports, code documentation, and business plans
     - Answer technical questions and debug code
     - Provide detailed explanations and tutorials
+    - *Note: Image analysis is temporarily disabled due to API limitations.*
     """)
     
     st.divider()
@@ -276,9 +247,8 @@ if submitted and user_input.strip():
     media_summary = []
     for file in uploaded_files:
         if file.type.startswith("image/"):
-            img = Image.open(file)
             with st.spinner(f"Analyzing {file.name}..."):
-                result = analyze_image(img, "Describe this image in detail.")
+                result = analyze_image(None, "Describe this image in detail.")  # Note: image analysis is disabled
             media_summary.append(f"Image {file.name}: {result}")
         elif file.type.startswith("video/"):
             with st.spinner(f"Processing video {file.name}..."):
