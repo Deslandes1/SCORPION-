@@ -157,7 +157,8 @@ def generate_code(prompt, media_summary=None):
 with st.sidebar:
     col_flag, col_name = st.columns([1, 3])
     with col_flag:
-        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Flag_of_Haiti.svg/320px-Flag_of_Haiti.svg.png", width=60)
+        # Reliable flag URL from flagcdn.com
+        st.image("https://flagcdn.com/w320/ht.png", width=60)
     with col_name:
         st.markdown("### **GlobalInternet.py**")
         st.markdown("*Owner: Gesner Deslandes*")
@@ -210,7 +211,7 @@ with st.sidebar:
 # ----------------------------------------------------------------------
 col1, col2, col3 = st.columns([1, 2, 1])
 with col1:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Flag_of_Haiti.svg/320px-Flag_of_Haiti.svg.png", width=100)
+    st.image("https://flagcdn.com/w320/ht.png", width=100)
 with col2:
     st.markdown("<h1 style='text-align: center; font-size: 3rem;'>♏️ SCORPION ♏️</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'><em>Your AI App Builder & Media Analyst</em></p>", unsafe_allow_html=True)
