@@ -6,23 +6,80 @@ import time
 from PIL import Image
 
 # ----------------------------------------------------------------------
-# Page config
+# Page configuration
 # ----------------------------------------------------------------------
 st.set_page_config(
     page_title="SCORPION ♏️ - AI App Builder",
     page_icon="♏️",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # ----------------------------------------------------------------------
-# Authentication
+# Custom CSS to make the app look upgraded
+# ----------------------------------------------------------------------
+st.markdown("""
+<style>
+    /* Main background */
+    .stApp {
+        background: linear-gradient(135deg, #0a0f1e 0%, #03060c 100%);
+    }
+    /* Custom headers */
+    h1, h2, h3, h4 {
+        font-family: 'Courier New', monospace;
+    }
+    .scorpion-title {
+        text-align: center;
+        font-size: 4rem;
+        font-weight: bold;
+        color: gold;
+        text-shadow: 2px 2px 0px #8B0000;
+        letter-spacing: 4px;
+        margin-bottom: 0;
+    }
+    .scorpion-sub {
+        text-align: center;
+        color: #f7d44a;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    .info-card {
+        background: rgba(0,0,0,0.6);
+        border-radius: 15px;
+        padding: 15px;
+        margin: 10px 0;
+        border-left: 5px solid gold;
+        backdrop-filter: blur(5px);
+    }
+    .price-tag {
+        background: #d62c1e;
+        display: inline-block;
+        padding: 6px 18px;
+        border-radius: 40px;
+        font-weight: bold;
+        color: white;
+        margin-top: 8px;
+    }
+    .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+        font-size: 0.8rem;
+        color: #888;
+        border-top: 1px solid #333;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ----------------------------------------------------------------------
+# Helper functions (authentication, API calls)
 # ----------------------------------------------------------------------
 def check_password():
     """Returns True if password is correct."""
     def password_entered():
         if st.session_state["password"] == st.secrets["password"]:
             st.session_state["password_correct"] = True
-            del st.session_state["password"]  # don't store password
+            del st.session_state["password"]
         else:
             st.session_state["password_correct"] = False
 
@@ -36,17 +93,6 @@ def check_password():
     else:
         return True
 
-if not check_password():
-    st.stop()
-
-# ----------------------------------------------------------------------
-# OpenAI setup
-# ----------------------------------------------------------------------
-openai.api_key = st.secrets["openai_api_key"]
-
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
 def encode_image(image):
     buffered = io.BytesIO()
     image.save(buffered, format="JPEG")
@@ -73,8 +119,8 @@ def analyze_image(image, prompt):
         return f"⚠️ Image analysis error: {str(e)}"
 
 def transcribe_video(video_file):
-    """Placeholder – in a real app you'd integrate AssemblyAI or Whisper."""
-    return f"[Video analysis not yet implemented] {video_file.name} – You can use a service like AssemblyAI for transcription."
+    # Placeholder – you can integrate AssemblyAI or Whisper later
+    return f"[Video analysis not yet implemented] {video_file.name} – You can use a service like AssemblyAI for full transcription."
 
 def generate_code(prompt, media_summary=None):
     system_msg = """You are SCORPION ♏️, an AI that builds applications and analyzes data.
@@ -101,64 +147,111 @@ def generate_code(prompt, media_summary=None):
         return f"⚠️ Error: {str(e)}. Check your OpenAI API key or internet connection."
 
 # ----------------------------------------------------------------------
-# Header with flag, logo, and company info
+# Sidebar – always visible with company info, price, license, description
+# ----------------------------------------------------------------------
+with st.sidebar:
+    # Haitian flag and company header
+    col_flag, col_name = st.columns([1, 3])
+    with col_flag:
+        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Flag_of_Haiti.svg/320px-Flag_of_Haiti.svg.png", width=60)
+    with col_name:
+        st.markdown("### **GlobalInternet.py**")
+        st.markdown("*Owner: Gesner Deslandes*")
+    
+    st.divider()
+    
+    # What SCORPION can do
+    st.markdown("## 🧠 What SCORPION Can Do")
+    st.markdown("""
+    - Build complete apps in any programming language (Python, JavaScript, HTML/CSS, etc.)
+    - Analyze images and videos (vision & transcription)
+    - Generate reports, code documentation, and business plans
+    - Answer technical questions and debug code
+    - Provide detailed explanations and tutorials
+    """)
+    
+    st.divider()
+    
+    # Price
+    st.markdown("## 💰 Pricing")
+    st.markdown("""
+    <div class="price-tag">One‑time purchase: $20 USD</div>
+    <div style="margin-top: 10px;">Includes lifetime access and free updates.</div>
+    """, unsafe_allow_html=True)
+    
+    # Contact & Payment
+    st.markdown("## 📞 Contact & Payment")
+    st.markdown("""
+    **📧 Email:** deslndes78@gmail.com  
+    **📱 Moncash:** (509) 4738-5663 via Prisme Transfer  
+    *Send payment and we'll activate your access.*
+    """)
+    
+    st.divider()
+    
+    # License
+    st.markdown("## 📜 License")
+    st.markdown("""
+    **All Rights Reserved** – Copyright © 2026 GlobalInternet.py  
+    This software is for personal use only. Redistribution or resale without permission is prohibited.
+    """)
+    
+    st.divider()
+    
+    # Made in Haiti
+    st.markdown("""
+    <div style="text-align: center; margin-top: 20px;">
+        <p>🇭🇹 Made in Haiti 🇭🇹</p>
+        <p><small>by <strong>GlobalInternet.py</strong><br>Python Developer: Gesner Deslandes</small></p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ----------------------------------------------------------------------
+# Main area – header with flag, title, and scorpion symbol
 # ----------------------------------------------------------------------
 col1, col2, col3 = st.columns([1, 2, 1])
 with col1:
-    # Haitian flag image (URL of the official flag)
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Flag_of_Haiti.svg/320px-Flag_of_Haiti.svg.png", width=100)
 with col2:
-    st.markdown("<h1 style='text-align: center;'>♏️ SCORPION ♏️</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'><em>Your AI app builder and analyst</em></p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; font-size: 3rem;'>♏️ SCORPION ♏️</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'><em>Your AI App Builder & Media Analyst</em></p>", unsafe_allow_html=True)
 with col3:
     st.markdown("""
     <div style='text-align: right;'>
         <b>GlobalInternet.py</b><br>
-        Owner: Gesner Deslandes<br>
-        📧 deslndes78@gmail.com<br>
-        📱 Moncash: (509) 4738-5663<br>
-        <i>© 2026 – All rights reserved</i>
+        Gesner Deslandes<br>
+        Python Developer
     </div>
     """, unsafe_allow_html=True)
 
 st.divider()
 
 # ----------------------------------------------------------------------
-# Sidebar instructions
+# Login check – if not logged in, show password input and description
 # ----------------------------------------------------------------------
-with st.sidebar:
-    st.markdown("## 🧠 How to use")
-    st.markdown("""
-    1. **Type your request** in the chat box below.
-    2. **Upload images or videos** (optional) – Scorpion will analyze them.
-    3. Click **Send**.
-    4. Download the response as a report.
-    """)
-    st.markdown("---")
-    st.markdown("### 🚀 Examples")
-    st.markdown("""
-    - "Build a Python calculator app with a GUI."
-    - "Analyze this image and tell me what you see."
-    - "Create a web page for a restaurant (HTML/CSS)."
-    - "Write a business plan for a tech startup."
-    """)
+if not check_password():
+    st.info("👋 Welcome to SCORPION! Enter the password to unlock the AI.")
+    st.stop()
 
 # ----------------------------------------------------------------------
-# Chat history
+# Once logged in, display the main chat interface
 # ----------------------------------------------------------------------
+st.markdown("## 💬 Ask SCORPION Anything")
+st.markdown("Type your request below, upload media if needed, and get a detailed response you can download.")
+
+# Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Display previous messages
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# ----------------------------------------------------------------------
 # Input form
-# ----------------------------------------------------------------------
 with st.form("input_form"):
-    user_input = st.text_area("💬 What would you like SCORPION to build or analyze?", height=100)
-    uploaded_files = st.file_uploader("📎 Upload images or videos (optional)", type=["jpg", "jpeg", "png", "mp4", "mov"], accept_multiple_files=True)
+    user_input = st.text_area("What would you like SCORPION to build or analyze?", height=100)
+    uploaded_files = st.file_uploader("Upload images or videos (optional)", type=["jpg", "jpeg", "png", "mp4", "mov"], accept_multiple_files=True)
     submitted = st.form_submit_button("Send")
 
 if submitted and user_input.strip():
@@ -204,5 +297,8 @@ if submitted and user_input.strip():
             mime="text/plain"
         )
 
+# ----------------------------------------------------------------------
+# Footer
+# ----------------------------------------------------------------------
 st.divider()
-st.markdown("<p style='text-align: center;'>Powered by OpenAI & Streamlit | Built by GlobalInternet.py</p>", unsafe_allow_html=True)
+st.markdown("<div class='footer'>Powered by OpenAI & Streamlit | Built by GlobalInternet.py – All rights reserved</div>", unsafe_allow_html=True)
