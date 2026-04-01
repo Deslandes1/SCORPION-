@@ -4,6 +4,7 @@ import base64
 import io
 import time
 from PIL import Image
+from openai import OpenAI
 
 # ----------------------------------------------------------------------
 # Page configuration
@@ -104,10 +105,12 @@ def encode_image(image):
     return base64.b64encode(buffered.getvalue()).decode('utf-8')
 
 def analyze_image(image, prompt):
+    """Analyze image using OpenAI Vision."""
     base64_img = encode_image(image)
+    client = OpenAI(api_key=st.secrets["openai_api_key"])
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4-vision-preview",
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",  # or "gpt-4o" if available
             messages=[
                 {
                     "role": "user",
@@ -128,6 +131,8 @@ def transcribe_video(video_file):
     return f"[Video analysis not yet implemented] {video_file.name} – You can use a service like AssemblyAI for full transcription."
 
 def generate_code(prompt, media_summary=None):
+    """Generate code or answer using OpenAI GPT-4."""
+    client = OpenAI(api_key=st.secrets["openai_api_key"])
     system_msg = """You are SCORPION ♏️, an AI that builds applications and analyzes data.
     Generate code, answer questions, and write reports.
     If asked to build an app, provide the full code with explanations.
@@ -138,8 +143,8 @@ def generate_code(prompt, media_summary=None):
         user_msg += f"\n\nMedia analysis:\n{media_summary}"
     
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
+        response = client.chat.completions.create(
+            model="gpt-4",  # or "gpt-4-turbo", etc.
             messages=[
                 {"role": "system", "content": system_msg},
                 {"role": "user", "content": user_msg}
@@ -157,7 +162,6 @@ def generate_code(prompt, media_summary=None):
 with st.sidebar:
     col_flag, col_name = st.columns([1, 3])
     with col_flag:
-        # Reliable flag URL from flagcdn.com
         st.image("https://flagcdn.com/w320/ht.png", width=60)
     with col_name:
         st.markdown("### **GlobalInternet.py**")
