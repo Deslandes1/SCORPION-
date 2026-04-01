@@ -16,51 +16,41 @@ st.set_page_config(
 )
 
 # ----------------------------------------------------------------------
-# Custom CSS – improved styling with better background and flag display
+# Custom CSS – clean light background
 # ----------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* Remove default Streamlit padding and background */
     .main .block-container {
         padding-top: 0rem;
         padding-bottom: 0rem;
     }
-    /* Background gradient */
     .stApp {
-        background: linear-gradient(145deg, #0a0f1e 0%, #03060c 100%);
-    }
-    /* Center the flag and title area */
-    .header-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
+        background: #f5f5f5;
     }
     .flag-img {
         width: 80px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .scorpion-title {
         font-size: 3rem;
         font-weight: bold;
-        color: #f5e56b;
-        text-shadow: 2px 2px 0 #8B0000;
+        color: #d62c1e;
         text-align: center;
         margin: 0;
     }
     .scorpion-sub {
         text-align: center;
-        color: #ddd8c6;
+        color: #333;
         margin-top: -0.5rem;
     }
     .info-card {
-        background: rgba(0,0,0,0.6);
-        border-radius: 15px;
+        background: white;
+        border-radius: 10px;
         padding: 15px;
         margin: 10px 0;
-        border-left: 5px solid gold;
-        backdrop-filter: blur(5px);
+        border-left: 5px solid #d62c1e;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     .price-tag {
         background: #d62c1e;
@@ -76,15 +66,12 @@ st.markdown("""
         margin-top: 30px;
         padding: 20px;
         font-size: 0.8rem;
-        color: #888;
-        border-top: 1px solid #333;
+        color: #666;
+        border-top: 1px solid #ddd;
     }
-    /* Sidebar styling */
-    .css-1d391kg {
-        background-color: #0a0f1e;
-    }
-    .sidebar .sidebar-content {
-        background: #0a0f1e;
+    section[data-testid="stSidebar"] {
+        background-color: #ffffff;
+        border-right: 1px solid #e0e0e0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -168,7 +155,6 @@ def generate_code(prompt, media_summary=None):
 # Sidebar – always visible with company info, price, license, description
 # ----------------------------------------------------------------------
 with st.sidebar:
-    # Haitian flag and company header
     col_flag, col_name = st.columns([1, 3])
     with col_flag:
         st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Flag_of_Haiti.svg/320px-Flag_of_Haiti.svg.png", width=60)
@@ -178,7 +164,6 @@ with st.sidebar:
     
     st.divider()
     
-    # What SCORPION can do
     st.markdown("## 🧠 What SCORPION Can Do")
     st.markdown("""
     - Build complete apps in any programming language (Python, JavaScript, HTML/CSS, etc.)
@@ -190,14 +175,12 @@ with st.sidebar:
     
     st.divider()
     
-    # Price
     st.markdown("## 💰 Pricing")
     st.markdown("""
     <div class="price-tag">One‑time purchase: $20 USD</div>
     <div style="margin-top: 10px;">Includes lifetime access and free updates.</div>
     """, unsafe_allow_html=True)
     
-    # Contact & Payment
     st.markdown("## 📞 Contact & Payment")
     st.markdown("""
     **📧 Email:** deslndes78@gmail.com  
@@ -207,7 +190,6 @@ with st.sidebar:
     
     st.divider()
     
-    # License
     st.markdown("## 📜 License")
     st.markdown("""
     **All Rights Reserved** – Copyright © 2026 GlobalInternet.py  
@@ -216,7 +198,6 @@ with st.sidebar:
     
     st.divider()
     
-    # Made in Haiti
     st.markdown("""
     <div style="text-align: center; margin-top: 20px;">
         <p>🇭🇹 Made in Haiti 🇭🇹</p>
