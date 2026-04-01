@@ -16,32 +16,43 @@ st.set_page_config(
 )
 
 # ----------------------------------------------------------------------
-# Custom CSS to make the app look upgraded
+# Custom CSS – improved styling with better background and flag display
 # ----------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* Main background */
-    .stApp {
-        background: linear-gradient(135deg, #0a0f1e 0%, #03060c 100%);
+    /* Remove default Streamlit padding and background */
+    .main .block-container {
+        padding-top: 0rem;
+        padding-bottom: 0rem;
     }
-    /* Custom headers */
-    h1, h2, h3, h4 {
-        font-family: 'Courier New', monospace;
+    /* Background gradient */
+    .stApp {
+        background: linear-gradient(145deg, #0a0f1e 0%, #03060c 100%);
+    }
+    /* Center the flag and title area */
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .flag-img {
+        width: 80px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
     .scorpion-title {
-        text-align: center;
-        font-size: 4rem;
+        font-size: 3rem;
         font-weight: bold;
-        color: gold;
-        text-shadow: 2px 2px 0px #8B0000;
-        letter-spacing: 4px;
-        margin-bottom: 0;
+        color: #f5e56b;
+        text-shadow: 2px 2px 0 #8B0000;
+        text-align: center;
+        margin: 0;
     }
     .scorpion-sub {
         text-align: center;
-        color: #f7d44a;
-        font-size: 1.2rem;
-        margin-bottom: 20px;
+        color: #ddd8c6;
+        margin-top: -0.5rem;
     }
     .info-card {
         background: rgba(0,0,0,0.6);
@@ -67,6 +78,13 @@ st.markdown("""
         font-size: 0.8rem;
         color: #888;
         border-top: 1px solid #333;
+    }
+    /* Sidebar styling */
+    .css-1d391kg {
+        background-color: #0a0f1e;
+    }
+    .sidebar .sidebar-content {
+        background: #0a0f1e;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -119,7 +137,7 @@ def analyze_image(image, prompt):
         return f"⚠️ Image analysis error: {str(e)}"
 
 def transcribe_video(video_file):
-    # Placeholder – you can integrate AssemblyAI or Whisper later
+    # Placeholder – integrate AssemblyAI or Whisper for real transcription
     return f"[Video analysis not yet implemented] {video_file.name} – You can use a service like AssemblyAI for full transcription."
 
 def generate_code(prompt, media_summary=None):
