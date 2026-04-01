@@ -1,14 +1,14 @@
-# SCORPION ♏️ – AI App Builder & Analyst
+# SCORPION ♏️ – AI App Builder & Media Analyst
 
-An AI‑powered assistant that builds applications, analyzes media, and writes reports.
+A powerful AI assistant that builds applications, analyzes images and videos, and writes detailed reports.
 
 ## 🚀 Features
 
 - **Password‑protected access** – secure login.
-- **Chat interface** – type requests like “Build a Python calculator” or “Analyze this image”.
-- **Media upload** – images (analyzed via GPT‑4 Vision) and videos (placeholder for transcription).
-- **Downloadable reports** – save AI responses as text files.
-- **Company info** – GlobalInternet.py, owner details, contact, and payment information.
+- **Chat interface** – ask for code, app ideas, or analysis.
+- **Media upload** – images (GPT‑4 Vision) and videos (placeholder for transcription).
+- **Downloadable reports** – save responses as text files.
+- **Professional branding** – Haitian flag, company info, pricing, and license.
 
 ## 📦 Deployment on Streamlit Cloud
 
