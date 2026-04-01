@@ -6,6 +6,11 @@ from PIL import Image
 from openai import OpenAI
 
 # ----------------------------------------------------------------------
+# DEBUG MODE – set to True to see detailed errors (for owner only)
+# ----------------------------------------------------------------------
+DEBUG = True   # Change to False after debugging
+
+# ----------------------------------------------------------------------
 # Page configuration
 # ----------------------------------------------------------------------
 st.set_page_config(
@@ -123,6 +128,8 @@ def analyze_image(image, prompt):
         )
         return response.choices[0].message.content
     except Exception as e:
+        if DEBUG:
+            return f"⚠️ **Debug error**: {str(e)}"
         return "⚠️ The AI service is temporarily unavailable. Please try again later."
 
 def transcribe_video(video_file):
@@ -133,6 +140,8 @@ def generate_code(prompt, media_summary=None):
     try:
         client = OpenAI(api_key=st.secrets["openai_api_key"])
     except KeyError:
+        if DEBUG:
+            return "⚠️ **Debug error**: OpenAI API key missing from secrets."
         return "⚠️ Service configuration error. Please contact support."
 
     system_msg = """You are SCORPION ♏️, an AI that builds applications and analyzes data.
@@ -156,6 +165,8 @@ def generate_code(prompt, media_summary=None):
         )
         return response.choices[0].message.content
     except Exception as e:
+        if DEBUG:
+            return f"⚠️ **Debug error**: {str(e)}"
         return "⚠️ The AI service is temporarily unavailable. Please try again later."
 
 # ----------------------------------------------------------------------
