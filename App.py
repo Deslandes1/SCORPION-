@@ -117,7 +117,7 @@ def analyze_image(image, prompt):
     try:
         client = OpenAI(api_key=st.secrets["openai_api_key"])
         response = client.chat.completions.create(
-            model="gpt-4-vision-preview",  # or "gpt-4o" if available
+            model="gpt-4-vision-preview",
             messages=[
                 {
                     "role": "user",
@@ -136,14 +136,213 @@ def analyze_image(image, prompt):
         return f"⚠️ Image analysis error: {str(e)}"
 
 def transcribe_video(video_file):
-    # Placeholder – integrate AssemblyAI or Whisper for real transcription
     return f"[Video analysis not yet implemented] {video_file.name} – You can use a service like AssemblyAI for full transcription."
 
 def get_api_instructions():
-    return """
-    ### How to set up your OpenAI API key
+    return (
+        "### How to set up your OpenAI API key\n\n"
+        "1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys) and create an API key (starts with `sk-`).\n"
+        "2. In your Streamlit app, click the **\"Manage app\"** button (gear icon) in the top right.\n"
+        "3. Go to **Settings → Secrets**.\n"
+        "4. Add the following two lines:\n"
+        "   ```\n"
+        "   password = \"20082010\"\n"
+        "   openai_api_key = \"sk-...\"\n"
+        "   ```\n"
+        "   (Replace `sk-...` with your actual key.)\n"
+        "5. Click **Save** and then **Rerun**.\n\n"
+        "The app will now work with your OpenAI account."
+    )
 
-    1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys) and create an API key (starts with `sk-`).
-    2. In your Streamlit app, click the **"Manage app"** button (gear icon) in the top right.
-    3. Go to **Settings → Secrets**.
-    4. Add the following two lines:
+def generate_code(prompt, media_summary=None):
+    """Generate code or answer using OpenAI GPT-4."""
+    try:
+        client = OpenAI(api_key=st.secrets["openai_api_key"])
+    except KeyError:
+        return "⚠️ **Configuration Error** – The `openai_api_key` secret is missing.\n\n" + get_api_instructions()
+
+    system_msg = """You are SCORPION ♏️, an AI that builds applications and analyzes data.
+    Generate code, answer questions, and write reports.
+    If asked to build an app, provide the full code with explanations.
+    If media is provided, incorporate its analysis into your response."""
+    
+    user_msg = prompt
+    if media_summary:
+        user_msg += f"\n\nMedia analysis:\n{media_summary}"
+    
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": user_msg}
+            ],
+            temperature=0.7,
+            max_tokens=2000
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        if "401" in str(e) or "invalid_api_key" in str(e):
+            return "⚠️ **API Key Error** – Your OpenAI API key is missing or incorrect.\n\n" + get_api_instructions()
+        elif "429" in str(e):
+            return "⚠️ **Rate Limit Exceeded** – You have used up your OpenAI quota or are making too many requests. Please check your account."
+        else:
+            return f"⚠️ Error: {str(e)}"
+
+# ----------------------------------------------------------------------
+# Sidebar – always visible with company info, price, license, description
+# ----------------------------------------------------------------------
+with st.sidebar:
+    col_flag, col_name = st.columns([1, 3])
+    with col_flag:
+        st.image("https://flagcdn.com/w320/ht.png", width=60)
+    with col_name:
+        st.markdown("### **GlobalInternet.py**")
+        st.markdown("*Owner: Gesner Deslandes*")
+    
+    st.divider()
+    
+    st.markdown("## 🧠 What SCORPION Can Do")
+    st.markdown("""
+    - Build complete apps in any programming language (Python, JavaScript, HTML/CSS, etc.)
+    - Analyze images and videos (vision & transcription)
+    - Generate reports, code documentation, and business plans
+    - Answer technical questions and debug code
+    - Provide detailed explanations and tutorials
+    """)
+    
+    st.divider()
+    
+    # API Setup Instructions (visible to everyone)
+    st.markdown("## 🔧 Setup Instructions")
+    with st.expander("How to add your OpenAI API key"):
+        st.markdown(get_api_instructions())
+    
+    st.divider()
+    
+    st.markdown("## 💰 Pricing")
+    st.markdown("""
+    <div class="price-tag">One‑time purchase: $20 USD</div>
+    <div style="margin-top: 10px;">Includes lifetime access and free updates.</div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("## 📞 Contact & Payment")
+    st.markdown("""
+    **📧 Email:** deslndes78@gmail.com  
+    **📱 Moncash:** (509) 4738-5663 via Prisme Transfer  
+    *Send payment and we'll activate your access.*
+    """)
+    
+    st.divider()
+    
+    st.markdown("## 📜 License")
+    st.markdown("""
+    **All Rights Reserved** – Copyright © 2026 GlobalInternet.py  
+    This software is for personal use only. Redistribution or resale without permission is prohibited.
+    """)
+    
+    st.divider()
+    
+    st.markdown("""
+    <div style="text-align: center; margin-top: 20px;">
+        <p>🇭🇹 Made in Haiti 🇭🇹</p>
+        <p><small>by <strong>GlobalInternet.py</strong><br>Python Developer: Gesner Deslandes</small></p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ----------------------------------------------------------------------
+# Main area – header with flag, title, and scorpion symbol
+# ----------------------------------------------------------------------
+col1, col2, col3 = st.columns([1, 2, 1])
+with col1:
+    st.image("https://flagcdn.com/w320/ht.png", width=100)
+with col2:
+    st.markdown("<h1 style='text-align: center; font-size: 3rem;'>♏️ SCORPION ♏️</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'><em>Your AI App Builder & Media Analyst</em></p>", unsafe_allow_html=True)
+with col3:
+    st.markdown("""
+    <div style='text-align: right;'>
+        <b>GlobalInternet.py</b><br>
+        Gesner Deslandes<br>
+        Python Developer
+    </div>
+    """, unsafe_allow_html=True)
+
+st.divider()
+
+# ----------------------------------------------------------------------
+# Login check – if not logged in, show password input and description
+# ----------------------------------------------------------------------
+if not check_password():
+    st.info("👋 Welcome to SCORPION! Enter the password to unlock the AI.")
+    st.stop()
+
+# ----------------------------------------------------------------------
+# Once logged in, display the main chat interface
+# ----------------------------------------------------------------------
+st.markdown("## 💬 Ask SCORPION Anything")
+st.markdown("Type your request below, upload media if needed, and get a detailed response you can download.")
+
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display previous messages
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# Input form
+with st.form("input_form"):
+    user_input = st.text_area("What would you like SCORPION to build or analyze?", height=100)
+    uploaded_files = st.file_uploader("Upload images or videos (optional)", type=["jpg", "jpeg", "png", "mp4", "mov"], accept_multiple_files=True)
+    submitted = st.form_submit_button("Send")
+
+if submitted and user_input.strip():
+    # Process uploaded files
+    media_summary = []
+    for file in uploaded_files:
+        if file.type.startswith("image/"):
+            img = Image.open(file)
+            with st.spinner(f"Analyzing {file.name}..."):
+                result = analyze_image(img, "Describe this image in detail.")
+            media_summary.append(f"Image {file.name}: {result}")
+        elif file.type.startswith("video/"):
+            with st.spinner(f"Processing video {file.name}..."):
+                result = transcribe_video(file)
+            media_summary.append(f"Video {file.name}: {result}")
+    
+    media_text = "\n\n".join(media_summary) if media_summary else None
+
+    # Display user message
+    user_display = user_input
+    if uploaded_files:
+        file_names = ", ".join([f.name for f in uploaded_files])
+        user_display += f"\n\n*Uploaded files: {file_names}*"
+    st.session_state.messages.append({"role": "user", "content": user_display})
+    with st.chat_message("user"):
+        st.markdown(user_display)
+
+    # Get AI response
+    with st.spinner("♏️ SCORPION is thinking..."):
+        response = generate_code(user_input, media_text)
+
+    # Display AI response
+    st.session_state.messages.append({"role": "assistant", "content": response})
+    with st.chat_message("assistant"):
+        st.markdown(response)
+        
+        # Download button
+        report_text = f"SCORPION ♏️ Report\n\nDate: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\nRequest: {user_input}\n\nResponse:\n{response}"
+        st.download_button(
+            label="📥 Download Report",
+            data=report_text,
+            file_name=f"scorpion_report_{int(time.time())}.txt",
+            mime="text/plain"
+        )
+
+# ----------------------------------------------------------------------
+# Footer
+# ----------------------------------------------------------------------
+st.divider()
+st.markdown("<div class='footer'>Powered by OpenAI & Streamlit | Built by GlobalInternet.py – All rights reserved</div>", unsafe_allow_html=True)
