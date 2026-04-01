@@ -103,19 +103,41 @@ def encode_image(image):
     image.save(buffered, format="JPEG")
     return base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-def analyze_image(image, prompt):
-    """Image analysis is disabled because GPT-4 Vision is not available with the current API key."""
-    return "⚠️ Image analysis is currently unavailable with your OpenAI plan. Please use text-based requests."
+def analyze_image(image, prompt, api_key):
+    """Analyze image using OpenAI Vision."""
+    if not api_key:
+        return "⚠️ Please enter your OpenAI API key in the sidebar."
+    base64_img = encode_image(image)
+    try:
+        client = OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",  # requires GPT-4 access
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": f"data:image/jpeg;base64,{base64_img}"}
+                    ]
+                }
+            ],
+            max_tokens=1000
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"⚠️ Image analysis error: {str(e)}"
 
 def transcribe_video(video_file):
     return f"[Video analysis not yet implemented] {video_file.name} – This feature will be available soon."
 
-def generate_code(prompt, media_summary=None):
+def generate_code(prompt, media_summary, api_key):
     """Generate code or answer using OpenAI GPT-3.5."""
+    if not api_key:
+        return "⚠️ Please enter your OpenAI API key in the sidebar."
     try:
-        client = OpenAI(api_key=st.secrets["openai_api_key"])
-    except KeyError:
-        return "⚠️ Service configuration error. Please contact support."
+        client = OpenAI(api_key=api_key)
+    except Exception as e:
+        return f"⚠️ Error initializing OpenAI client: {str(e)}"
 
     system_msg = """You are SCORPION ♏️, an AI that builds applications and analyzes data.
     Generate code, answer questions, and write reports.
@@ -128,7 +150,7 @@ def generate_code(prompt, media_summary=None):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Use GPT-3.5 which is widely available
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": system_msg},
                 {"role": "user", "content": user_msg}
@@ -153,13 +175,23 @@ with st.sidebar:
     
     st.divider()
     
+    # API Key input
+    st.markdown("## 🔑 OpenAI API Key")
+    api_key = st.text_input("Enter your OpenAI API key", type="password", help="Your key is used only for this session and not stored.")
+    if api_key:
+        st.success("✅ API key provided. Ready to use!")
+    else:
+        st.warning("⚠️ Please enter your OpenAI API key to use the AI features.")
+    
+    st.divider()
+    
     st.markdown("## 🧠 What SCORPION Can Do")
     st.markdown("""
     - Build complete apps in any programming language (Python, JavaScript, HTML/CSS, etc.)
+    - Analyze images (if your key has GPT‑4 Vision access)
     - Generate reports, code documentation, and business plans
     - Answer technical questions and debug code
     - Provide detailed explanations and tutorials
-    - *Note: Image analysis is temporarily disabled due to API limitations.*
     """)
     
     st.divider()
@@ -247,8 +279,9 @@ if submitted and user_input.strip():
     media_summary = []
     for file in uploaded_files:
         if file.type.startswith("image/"):
+            img = Image.open(file)
             with st.spinner(f"Analyzing {file.name}..."):
-                result = analyze_image(None, "Describe this image in detail.")  # Note: image analysis is disabled
+                result = analyze_image(img, "Describe this image in detail.", api_key)
             media_summary.append(f"Image {file.name}: {result}")
         elif file.type.startswith("video/"):
             with st.spinner(f"Processing video {file.name}..."):
@@ -268,7 +301,7 @@ if submitted and user_input.strip():
 
     # Get AI response
     with st.spinner("♏️ SCORPION is thinking..."):
-        response = generate_code(user_input, media_text)
+        response = generate_code(user_input, media_text, api_key)
 
     # Display AI response
     st.session_state.messages.append({"role": "assistant", "content": response})
